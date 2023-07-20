@@ -8,3 +8,4 @@ catalog/templatetags/pycache/
 blog/pycache/
 catalog/management/pycache/
 blog/migrations/__pycache__/
+.env
