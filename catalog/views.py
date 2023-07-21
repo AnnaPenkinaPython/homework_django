@@ -7,6 +7,8 @@ from django.views import generic
 from catalog.forms import ProductForm, VersionForm, ProductFormCutted
 from catalog.models import Product, Contact, Version, Category
 from catalog.services.cache import get_cache_categories
+
+
 class ProductsListView(generic.ListView):
     model = Product
     extra_context = {
@@ -21,34 +23,29 @@ class ProductDetailView(generic.DetailView):
 class ContactCreateView(generic.CreateView):
     model = Contact
     fields = ('name', 'phone', 'message')
-class ProductCreateView(LoginRequiredMixin):
+class ProductCreateView(LoginRequiredMixin, generic.CreateView):
     model = Product
     extra_context = {
         "title": "Внести новый товар"
     }
     form_class = ProductForm
     success_url = reverse_lazy('catalog:catalog')
-
     def form_valid(self, form):
         self.object = form.save()
         self.object.user = self.request.user
         self.object.save()
         return super().form_valid(form)
-
-
+class ProductUpdateCuttedView(PermissionRequiredMixin, generic.UpdateView):
+    model = Product
+    template_name = 'catalog/product_form.html'
+    form_class = ProductFormCutted
+    permission_required = 'catalog.can_edit_description_and_category_product'
+    def get_success_url(self):
+        return reverse('catalog:product_items', kwargs={'pk': self.object.pk})
 class ProductUpdateView(generic.UpdateView):
     model = Product
-
     template_name = 'catalog/product_form_with_formset.html'
     form_class = ProductForm
-    class ProductUpdateCuttedView(PermissionRequiredMixin, generic.UpdateView):
-        model = Product
-        template_name = 'catalog/product_form.html'
-        form_class = ProductFormCutted
-        permission_required = 'catalog.can_edit_description_and_category_product'
-
-        def get_success_url(self):
-            return reverse('catalog:product_items', kwargs={'pk': self.object.pk})
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
@@ -65,16 +62,14 @@ class ProductUpdateView(generic.UpdateView):
             formset.instance = self.object
             formset.save()
         return super().form_valid(form)
-
     def get_success_url(self):
         return reverse('catalog:product_items', kwargs={'pk': self.object.pk})
-
-
 @permission_required('catalog.set_published_product')
 def change_is_published(request, pk):
     product_item = get_object_or_404(Product, pk=pk)
     product_item.toggle_is_published()
     return redirect(reverse('catalog:product_items', args=[product_item.pk]))
+
 
 class CategoryListView(generic.ListView):
     model = Category
