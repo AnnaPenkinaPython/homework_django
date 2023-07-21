@@ -1,4 +1,37 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+<div class="table">
+    <table>
+        <tr>
+            <td>
+                Количество рассылок всего
+            </td>
+            <td>
+                {{count_mailing}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Количество активных рассылок:
+            </td>
+            <td>
+                {{active_mailing}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Количество уникальных клиентов для рассылок:
+            </td>
+            <td>
+                {{unique_clients}}
+            </td>
+        </tr>
+    </table>
+</div>
+
 {% load tags %}
+{% for post in random_post %}
 <div class="table">
     <div class="row mb-2">
         <div class="col-6">
@@ -18,3 +51,6 @@
         </div>
     </div>
 </div>
+{% endfor %}
+
+{% endblock %}

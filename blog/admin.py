@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from blog.models import Blog
+from blog.models import Post
 
 
-@admin.register(Blog)
-class BlogAdmin(admin.ModelAdmin):
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'count_of_view')
     list_filter = ('title',)
     search_fields = ('title',)
